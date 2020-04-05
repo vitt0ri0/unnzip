@@ -1,0 +1,47 @@
+#!/Users/user/praktikum/hw2_communities/venv/bin/python
+import os
+import subprocess
+from pathlib import Path
+from zipfile import ZipFile
+
+from dotenv import load_dotenv
+load_dotenv()
+
+
+if __name__ == '__main__':
+    # process parameters
+
+    search_path = os.getenv('search_path')
+    # search_path = '.'
+    dest_path = os.getenv('dest_path')
+
+    # search this directory, .zip
+    paths = sorted(Path(search_path).iterdir(), key=os.path.getmtime, reverse=True)
+    file_path = paths[0]
+    assert file_path.is_file()
+    file = file_path.name
+
+    # split "name" and "hw0_name"
+    file, ext = file.split('.')
+    assert ext == 'zip'
+
+    user, hw_time = file.split('__')
+    user = user.lower()
+    homework, timestamp = hw_time.split('_15')
+    homework = homework.lower()
+
+    # find destination
+    extr_path = dest_path + '/' + homework + '/' + user
+    extr_dir_name = homework + '-' + 'master'
+
+    # unzip archive
+    with ZipFile(search_path + '/' + file_path.name, 'r') as zf:
+        zf.extractall(path=extr_path)
+
+    print('Extracting Done')
+    print(extr_path)
+
+    subprocess.Popen(['charm', '.'], cwd=extr_path + '/' + extr_dir_name)
+    print('staring Pycharm')
+
+
